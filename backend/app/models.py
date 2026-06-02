@@ -33,6 +33,7 @@ class RestaurantProfile(Base):
     longitude = Column(Float, nullable=True)
 
     user = relationship("User", back_populates="restaurant_profile")
+    donations = relationship("Donation", back_populates="restaurant", cascade="all, delete-orphan")
 
 class NGOProfile(Base):
     __tablename__ = "ngo_profiles"
@@ -57,3 +58,24 @@ class VolunteerProfile(Base):
     vehicle_type = Column(String, nullable=True) # car, bicycle, walking, motorcycle, etc.
 
     user = relationship("User", back_populates="volunteer_profile")
+
+class Donation(Base):
+    __tablename__ = "donations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    restaurant_id = Column(Integer, ForeignKey("restaurant_profiles.id", ondelete="CASCADE"), nullable=False)
+    food_type = Column(String, nullable=False)
+    quantity = Column(String, nullable=False)
+    prep_time = Column(DateTime, nullable=False)
+    expiry_time = Column(DateTime, nullable=False)
+    pickup_address = Column(String, nullable=False)
+    pickup_lat = Column(Float, nullable=False)
+    pickup_lng = Column(Float, nullable=False)
+    status = Column(String, default="available", nullable=False) # available, picked_up, delivered, expired
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+
+    restaurant = relationship("RestaurantProfile", back_populates="donations")
+
+    @property
+    def restaurant_name(self) -> str:
+        return self.restaurant.name if self.restaurant else ""
