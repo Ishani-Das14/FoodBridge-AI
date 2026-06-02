@@ -16,20 +16,21 @@ security_scheme = HTTPBearer(auto_error=False)
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    token: str = None
 ) -> User:
     """
     Decodes the JWT access token and returns the authenticated user context.
     Raises HTTP 401 Unauthorized if the token is missing, expired, or invalid.
     """
-    if not credentials:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authorization credentials are missing.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    token = credentials.credentials
+    if token is None:
+        if not credentials:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authorization credentials are missing.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        token = credentials.credentials
     claims = decode_token(token)
     
     # Verify signature output contains claims

@@ -33,7 +33,6 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 # ------------------------------------------------------------------------------
 # Registration Endpoints
 # ------------------------------------------------------------------------------
-@router.post("/register/restaurant", response_model=UserOut, status_code=status.HTTP_21_CREATED)
 @router.post("/register/restaurant", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register_restaurant(data: RestaurantRegister, db: Session = Depends(get_db)):
     """Registers a restaurant partner account with profile metadata."""

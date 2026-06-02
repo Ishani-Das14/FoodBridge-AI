@@ -1,0 +1,45 @@
+# ==============================================================================
+# FoodBridge AI - Git Ignore Configuration
+# Excludes development environments, build artifacts, caches, and secrets
+# ==============================================================================
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+dist/
+build/
+*.egg-info/
+
+# Python Bytecode and Caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Local Environment Credentials & Secrets
+.env
+.env.local
+.env.*.local
+*.private
+
+# Frontend Dependencies & Build Artifacts (React)
+frontend/node_modules/
+frontend/dist/
+node_modules/
+
+# OS and Editor Specific Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
