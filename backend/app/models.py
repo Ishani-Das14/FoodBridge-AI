@@ -45,6 +45,7 @@ class NGOProfile(Base):
     address = Column(String, nullable=False)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
+    capacity = Column(Integer, default=0, nullable=False)
 
     user = relationship("User", back_populates="ngo_profile")
 
@@ -75,7 +76,22 @@ class Donation(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
 
     restaurant = relationship("RestaurantProfile", back_populates="donations")
+    matches = relationship("Match", back_populates="donation", cascade="all, delete-orphan")
 
     @property
     def restaurant_name(self) -> str:
         return self.restaurant.name if self.restaurant else ""
+
+class Match(Base):
+    __tablename__ = "matches"
+
+    id = Column(Integer, primary_key=True, index=True)
+    donation_id = Column(Integer, ForeignKey("donations.id", ondelete="CASCADE"), nullable=False)
+    ngo_id = Column(Integer, ForeignKey("ngo_profiles.id", ondelete="CASCADE"), nullable=False)
+    quantity_allocated = Column(Integer, nullable=False)
+    status = Column(String, default="pending", nullable=False) # pending, accepted, rejected
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+
+    donation = relationship("Donation", back_populates="matches")
+    ngo = relationship("NGOProfile")
+

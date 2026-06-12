@@ -25,6 +25,7 @@ class NGORegister(BaseModel):
     address: str = Field(..., min_length=5)
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    capacity: Optional[int] = Field(0, ge=0, description="NGO storage/distribution capacity in units")
 
 class VolunteerRegister(BaseModel):
     email: EmailStr
@@ -68,6 +69,7 @@ class NGOProfileOut(BaseModel):
     address: str
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    capacity: int
 
     class Config:
         from_attributes = True

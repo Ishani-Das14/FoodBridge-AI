@@ -147,7 +147,8 @@ def register_ngo_user(db: Session, data: NGORegister) -> User:
         registration_number=data.registration_number,
         address=data.address,
         latitude=data.latitude,
-        longitude=data.longitude
+        longitude=data.longitude,
+        capacity=data.capacity if data.capacity is not None else 0
     )
     db.add(profile)
     db.commit()

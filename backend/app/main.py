@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.auth.router import router as auth_router
 from app.services.donation.router import router as donation_router
+from app.services.matching.router import router as matching_router
 
 app = FastAPI(
     title="FoodBridge AI API Gateway",
@@ -39,6 +40,7 @@ app.add_middleware(
 # Register authorization endpoints under standard v1 schema
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(donation_router, prefix="/api/v1")
+app.include_router(matching_router, prefix="/api/v1")
 
 @app.get("/", tags=["Health Check"])
 def read_root():

@@ -16,9 +16,27 @@ def trigger_matching(donation_id: int) -> str:
     Background worker task triggered 2 minutes after a donation is posted.
     Orchestrates matching calculations between restaurants and active NGOs.
     """
-    logger.info(f"Triggering matching matching service for donation_id={donation_id}...")
-    # Simulate routing solver / charity pairing calculation
-    return f"Orchestrated match search successfully completed for donation {donation_id}."
+    logger.info(f"Triggering matching service for donation_id={donation_id}...")
+    from app.services.matching.service import run_matching_for_donation
+    db = SessionLocal()
+    try:
+        matches = run_matching_for_donation(db, donation_id)
+        return f"Orchestrated match search successfully completed for donation {donation_id}. Matches created: {len(matches)}"
+    except Exception as e:
+        logger.error(f"Failed to run matching task for donation {donation_id}: {e}")
+        db.rollback()
+        raise e
+    finally:
+        db.close()
+
+@celery_app.task(name="app.tasks.donation_tasks.notify_ngo")
+def notify_ngo(match_id: int) -> str:
+    """
+    Background worker task that notifies an NGO about a newly generated match.
+    """
+    logger.info(f"Pushing notification task triggered for match_id={match_id}...")
+    # Simulate notification push logic
+    return f"Notification push successfully completed for match {match_id}."
 
 @celery_app.task(name="app.tasks.donation_tasks.expire_donations")
 def expire_donations() -> str:
