@@ -20,6 +20,38 @@ from app.services.donation.service import (
 
 router = APIRouter(prefix="/donations", tags=["Food Donations"])
 
+# Separate router for restaurant-specific endpoints
+restaurant_router = APIRouter(prefix="/restaurants", tags=["Restaurants"])
+
+@restaurant_router.get("/me/stats")
+def get_my_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Returns dashboard stats for the logged-in restaurant."""
+    from app.models import RestaurantProfile, Donation
+    profile = db.query(RestaurantProfile).filter(RestaurantProfile.user_id == current_user.id).first()
+    if not profile:
+        return {"total_donations": 0, "meals_donated": 0, "csr_score": 0}
+    donations = db.query(Donation).filter(Donation.restaurant_id == profile.id).all()
+    total = len(donations)
+    delivered = [d for d in donations if d.status == "delivered"]
+    meals = sum(int(d.quantity) if str(d.quantity).isdigit() else 0 for d in delivered)
+    csr = min(100, round(meals * 0.5))
+    return {"total_donations": total, "meals_donated": meals, "csr_score": csr}
+
+@router.get("/my", response_model=List[DonationOut])
+def get_my_donations(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Returns all donations created by the logged-in restaurant."""
+    from app.models import RestaurantProfile, Donation
+    profile = db.query(RestaurantProfile).filter(RestaurantProfile.user_id == current_user.id).first()
+    if not profile:
+        return []
+    return db.query(Donation).filter(Donation.restaurant_id == profile.id).order_by(Donation.created_at.desc()).all()
+
 @router.post("", response_model=DonationOut, status_code=status.HTTP_201_CREATED)
 def create_donation(
     data: DonationCreate,

@@ -10,8 +10,7 @@ export default function Register() {
     name: '',
     email: '',
     password: '',
-    fssai_license: '',
-    city: '',
+    address: '',
   })
   const [loading, setLoading] = useState(false)
 
@@ -40,8 +39,7 @@ export default function Register() {
     { id: 'name', label: 'Restaurant name', type: 'text', icon: Building2 },
     { id: 'email', label: 'Email address', type: 'email', icon: Mail },
     { id: 'password', label: 'Password', type: 'password', icon: Lock },
-    { id: 'fssai_license', label: 'FSSAI license no.', type: 'text', icon: FileText },
-    { id: 'city', label: 'City', type: 'text', icon: MapPin },
+    { id: 'address', label: 'Full Address', type: 'text', icon: MapPin },
   ]
 
   return (

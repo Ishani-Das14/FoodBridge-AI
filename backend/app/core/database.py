@@ -13,10 +13,14 @@ POSTGRES_USER = os.getenv("POSTGRES_USER", "foodbridge_admin")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "foodbridge_secure_pass_99")
 POSTGRES_DB = os.getenv("POSTGRES_DB", "foodbridge_db")
 
-# Compute database URL (PostGIS works seamlessly over PostgreSQL adapter)
-DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
+# Compute database URL or use from environment
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./foodbridge.db")
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+if DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

@@ -6,10 +6,7 @@ import os
 from datetime import datetime, timedelta
 from typing import Any, Union
 from jose import jwt, JWTError
-from passlib.context import CryptContext
-
-# Cryptographic password hashing context setup
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+import bcrypt
 
 # Retrieve security parameters from environmental configurations
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretjwtkeythatshouldbechangedinproduction123!")
@@ -19,11 +16,13 @@ REFRESH_TOKEN_EXPIRE_DAYS = 7 # Required 7 days
 
 def hash_password(password: str) -> str:
     """Computes a cryptographically secure hash from a plain text password."""
-    return pwd_context.hash(password)
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed_password.decode('utf-8')
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Validates a candidate plain text password against a stored hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 def create_access_token(subject: Union[str, Any], role: str, email: str, expires_delta: timedelta = None) -> str:
     """Generates an access JWT with a 30-minute default lifetime."""

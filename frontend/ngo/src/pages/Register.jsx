@@ -10,7 +10,7 @@ export default function Register() {
     name: '',
     email: '',
     password: '',
-    city: '',
+    registration_number: '',
     address: '',
     capacity: '',
   })
@@ -45,7 +45,7 @@ export default function Register() {
     { id: 'name', label: 'NGO Name', type: 'text', icon: Building2 },
     { id: 'email', label: 'Email address', type: 'email', icon: Mail },
     { id: 'password', label: 'Password', type: 'password', icon: Lock },
-    { id: 'city', label: 'City', type: 'text', icon: MapPin },
+    { id: 'registration_number', label: 'Registration No.', type: 'text', icon: MapPin },
     { id: 'address', label: 'Full Address', type: 'text', icon: Navigation },
     { id: 'capacity', label: 'Capacity (max meals/day)', type: 'number', icon: Users },
   ]

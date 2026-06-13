@@ -7,8 +7,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.auth.router import router as auth_router
-from app.services.donation.router import router as donation_router
+from app.services.donation.router import router as donation_router, restaurant_router
 from app.services.matching.router import router as matching_router
+from app.services.notifications.router import router as notification_router
 
 app = FastAPI(
     title="FoodBridge AI API Gateway",
@@ -21,7 +22,7 @@ app = FastAPI(
 # ------------------------------------------------------------------------------
 BACKEND_CORS_ORIGINS = os.getenv(
     "BACKEND_CORS_ORIGINS",
-    "http://localhost:3000,http://localhost:5173,http://localhost:8000"
+    "http://localhost:3000,http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:8000"
 )
 
 origins = [origin.strip() for origin in BACKEND_CORS_ORIGINS.split(",") if origin.strip()]
@@ -40,7 +41,9 @@ app.add_middleware(
 # Register authorization endpoints under standard v1 schema
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(donation_router, prefix="/api/v1")
+app.include_router(restaurant_router, prefix="/api/v1")
 app.include_router(matching_router, prefix="/api/v1")
+app.include_router(notification_router, prefix="/api/v1")
 
 @app.get("/", tags=["Health Check"])
 def read_root():

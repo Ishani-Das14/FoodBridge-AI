@@ -81,7 +81,8 @@ def login(payload: LoginPayload, db: Session = Depends(get_db)):
 
     return TokenResponse(
         access_token=access_token,
-        refresh_token=refresh_token
+        refresh_token=refresh_token,
+        user=user
     )
 
 @router.post("/refresh", response_model=TokenResponse)

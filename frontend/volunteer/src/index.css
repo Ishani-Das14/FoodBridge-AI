@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+    font-family: 'Inter', 'Outfit', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#1D9E75] hover:bg-[#158562] active:bg-[#116d50] text-white text-[15px] font-semibold shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#1D9E75] focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none w-full;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-700 text-[15px] font-semibold border border-slate-200 shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none w-full;
+  }
+  .input {
+    @apply w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent transition-shadow duration-150;
+  }
+  .label {
+    @apply block text-sm font-medium text-slate-700 mb-1.5;
+  }
+  .card {
+    @apply bg-white rounded-2xl border border-slate-100 shadow-sm;
+  }
+}
+
+.leaflet-container { font-family: inherit; border-radius: 1rem; }
