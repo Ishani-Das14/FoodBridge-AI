@@ -15,19 +15,21 @@ export default function Login() {
     e.preventDefault()
     setLoading(true)
     try {
-      const params = new URLSearchParams()
-      params.append('username', form.email)
-      params.append('password', form.password)
-
-      const { data } = await api.post('/auth/login', params, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      const { data } = await api.post('/auth/login', {
+        email: form.email,
+        password: form.password,
       })
       localStorage.setItem('ngo_access_token', data.access_token)
       localStorage.setItem('ngo_user', JSON.stringify(data.user ?? {}))
       toast.success('Welcome back!')
       navigate('/feed')
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Invalid credentials')
+      const detail = err.response?.data?.detail
+      if (Array.isArray(detail)) {
+        toast.error(detail[0]?.msg || 'Validation error')
+      } else {
+        toast.error(detail || 'Invalid credentials')
+      }
     } finally {
       setLoading(false)
     }

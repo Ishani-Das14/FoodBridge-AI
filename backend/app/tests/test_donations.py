@@ -15,7 +15,11 @@ from app.auth.dependencies import get_current_user
 from app.auth.router import router as auth_router
 from app.services.donation.router import router as donation_router
 from app.tasks.donation_tasks import expire_donations
+from app.tasks.celery_app import celery_app
 import app.tasks.donation_tasks as donation_tasks
+
+# Force Celery to execute tasks synchronously for test purposes
+celery_app.conf.task_always_eager = True
 
 # ------------------------------------------------------------------------------
 # 1. In-Memory SQLite Database Setup for Tests
@@ -52,6 +56,7 @@ client = TestClient(app)
 @pytest.fixture(autouse=True)
 def setup_database():
     """Initializes schema before every test and drops it afterward."""
+    donation_tasks.SessionLocal = TestingSessionLocal
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)

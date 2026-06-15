@@ -32,8 +32,9 @@ export default function DonatePage() {
   const [form, setForm] = useState({
     food_type: 'Rice',
     quantity: '',
-    prepared_at: '',
-    expiry_time: '',
+    prep_time: '',
+    expiry_minutes: '',
+    pickup_address: '',
   })
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
@@ -47,18 +48,24 @@ export default function DonatePage() {
     setLoading(true)
     try {
       const payload = {
-        ...form,
-        quantity: Number(form.quantity),
-        pickup_location: {
-          type: 'Point',
-          coordinates: [location.lng, location.lat],
-        },
+        food_type: form.food_type,
+        quantity: form.quantity + ' kg',
+        prep_time: new Date(form.prep_time).toISOString(),
+        expiry_minutes: Number(form.expiry_minutes),
+        pickup_address: form.pickup_address,
+        pickup_lat: location.lat,
+        pickup_lng: location.lng,
       }
       await api.post('/donations', payload)
       toast.success('Donation created!')
       navigate('/dashboard')
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Failed to create donation')
+      const detail = err.response?.data?.detail
+      if (Array.isArray(detail)) {
+        toast.error(detail[0]?.msg || 'Validation error')
+      } else {
+        toast.error(detail || 'Failed to create donation')
+      }
     } finally {
       setLoading(false)
     }
@@ -107,24 +114,39 @@ export default function DonatePage() {
             <label className="label">Prepared At</label>
             <input
               type="datetime-local"
-              name="prepared_at"
+              name="prep_time"
               required
-              value={form.prepared_at}
+              value={form.prep_time}
               onChange={handleChange}
               className="input"
             />
           </div>
           <div>
-            <label className="label">Expiry</label>
+            <label className="label">Expiry in (minutes)</label>
             <input
-              type="datetime-local"
-              name="expiry_time"
+              type="number"
+              name="expiry_minutes"
+              min="30"
               required
-              value={form.expiry_time}
+              value={form.expiry_minutes}
               onChange={handleChange}
+              placeholder="e.g., 120"
               className="input"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="label">Pickup Address (Text)</label>
+          <input
+            type="text"
+            name="pickup_address"
+            required
+            value={form.pickup_address}
+            onChange={handleChange}
+            placeholder="123 Gourmet Ave, Mumbai"
+            className="input"
+          />
         </div>
 
         {/* Map picker */}

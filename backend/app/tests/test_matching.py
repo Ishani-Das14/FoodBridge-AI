@@ -58,6 +58,7 @@ client = TestClient(app)
 @pytest.fixture(autouse=True)
 def setup_database():
     """Initializes schema before every test and drops it afterward."""
+    donation_tasks.SessionLocal = TestingSessionLocal
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)

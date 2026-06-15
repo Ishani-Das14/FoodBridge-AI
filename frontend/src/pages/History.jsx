@@ -80,7 +80,7 @@ export default function History() {
                   <td className="px-6 py-4 font-medium text-slate-900 capitalize">{d.food_type}</td>
                   <td className="px-6 py-4 text-slate-600">{d.quantity}</td>
                   <td className="px-6 py-4"><StatusBadge status={d.status} /></td>
-                  <td className="px-6 py-4">{new Date(d.prepared_at).toLocaleString()}</td>
+                  <td className="px-6 py-4">{d.prep_time ? new Date(d.prep_time).toLocaleString() : '—'}</td>
                   <td className="px-6 py-4"><ExpiryCell iso={d.expiry_time} /></td>
                   <td className="px-6 py-4 text-xs text-slate-500">{new Date(d.created_at).toLocaleDateString()}</td>
                 </tr>

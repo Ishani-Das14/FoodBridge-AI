@@ -10,8 +10,7 @@ export default function Register() {
     name: '',
     email: '',
     password: '',
-    fssai_license: '',
-    city: '',
+    address: '',
   })
   const [loading, setLoading] = useState(false)
 
@@ -40,8 +39,7 @@ export default function Register() {
     { id: 'name',          label: 'Restaurant name',    type: 'text',     icon: Building2, placeholder: 'Spice Garden' },
     { id: 'email',         label: 'Email address',      type: 'email',    icon: Mail,      placeholder: 'you@restaurant.com', autoComplete: 'email' },
     { id: 'password',      label: 'Password',           type: 'password', icon: Lock,      placeholder: '••••••••', autoComplete: 'new-password' },
-    { id: 'fssai_license', label: 'FSSAI license no.',  type: 'text',     icon: FileText,  placeholder: '10012345678901' },
-    { id: 'city',          label: 'City',               type: 'text',     icon: MapPin,    placeholder: 'Mumbai' },
+    { id: 'address',       label: 'Full Address',       type: 'text',     icon: MapPin,    placeholder: '123 Gourmet Ave, Mumbai' },
   ]
 
   return (

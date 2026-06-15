@@ -33,8 +33,8 @@ export default function DonatePage() {
   const [form, setForm] = useState({
     food_type: 'Rice',
     quantity: '',
-    prepared_at: '',
-    expiry_time: '',
+    prep_time: '',
+    expiry_minutes: '',
     pickup_address: '',
   })
 
@@ -48,7 +48,12 @@ export default function DonatePage() {
       navigate('/dashboard')
     },
     onError: (err) => {
-      toast.error(err.response?.data?.detail || 'Failed to create donation')
+      const detail = err.response?.data?.detail
+      if (Array.isArray(detail)) {
+        toast.error(detail[0]?.msg || 'Validation error')
+      } else {
+        toast.error(detail || 'Failed to create donation')
+      }
     }
   })
 
@@ -59,20 +64,14 @@ export default function DonatePage() {
       return
     }
 
-    // Convert expiry_time from minutes to an ISO string
-    const expiryDate = new Date()
-    expiryDate.setMinutes(expiryDate.getMinutes() + Number(form.expiry_time))
-
     const payload = {
       food_type: form.food_type,
-      quantity: Number(form.quantity),
-      prepared_at: new Date(form.prepared_at).toISOString(),
-      expiry_time: expiryDate.toISOString(),
+      quantity: form.quantity + ' kg',
+      prep_time: new Date(form.prep_time).toISOString(),
+      expiry_minutes: Number(form.expiry_minutes),
       pickup_address: form.pickup_address,
-      pickup_location: {
-        type: 'Point',
-        coordinates: [location.lng, location.lat],
-      },
+      pickup_lat: location.lat,
+      pickup_lng: location.lng,
     }
     createDonation.mutate(payload)
   }
@@ -99,11 +98,11 @@ export default function DonatePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="label">Prepared At</label>
-            <input type="datetime-local" name="prepared_at" required value={form.prepared_at} onChange={handleChange} className="input" />
+            <input type="datetime-local" name="prep_time" required value={form.prep_time} onChange={handleChange} className="input" />
           </div>
           <div>
             <label className="label">Expiry in (minutes)</label>
-            <input type="number" name="expiry_time" min="30" required value={form.expiry_time} onChange={handleChange} placeholder="e.g., 120" className="input" />
+            <input type="number" name="expiry_minutes" min="30" required value={form.expiry_minutes} onChange={handleChange} placeholder="e.g., 120" className="input" />
           </div>
         </div>
         
