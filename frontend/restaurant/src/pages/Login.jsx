@@ -20,6 +20,7 @@ export default function Login() {
         password: form.password,
       })
       localStorage.setItem('fb_access_token', data.access_token)
+      localStorage.setItem('fb_refresh_token', data.refresh_token)
       localStorage.setItem('fb_user', JSON.stringify(data.user ?? {}))
       toast.success('Welcome back!')
       navigate('/dashboard')

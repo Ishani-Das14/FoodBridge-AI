@@ -59,20 +59,25 @@ export default function Dashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['stats'],
     queryFn: async () => {
-      const res = await api.get('/restaurants/me/stats')
-      return res.data
+      try {
+        const res = await api.get('/restaurants/me/stats')
+        return res.data
+      } catch { return { total_donations: 0, meals_donated: 0, csr_score: 0 } }
     },
+    retry: false,
     refetchInterval: 30_000,
   })
 
   const { data: donations = [], isLoading: donationsLoading, isFetching } = useQuery({
     queryKey: ['activeDonations'],
     queryFn: async () => {
-      const res = await api.get('/donations/my')
-      // API might return { items: [] } or []
-      const items = res.data?.items ?? res.data ?? []
-      return items.filter(d => ['available', 'matched', 'picked_up'].includes(d.status))
+      try {
+        const res = await api.get('/donations/my')
+        const items = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+        return items.filter(d => ['available', 'matched', 'picked_up'].includes(d.status))
+      } catch { return [] }
     },
+    retry: false,
     refetchInterval: 30_000,
   })
 

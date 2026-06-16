@@ -26,9 +26,11 @@ export default function Register() {
     } catch (err) {
       const detail = err.response?.data?.detail
       if (Array.isArray(detail)) {
-        toast.error(detail[0]?.msg || 'Validation error')
+        toast.error(detail.map(d => d.msg || String(d)).join(', '))
+      } else if (typeof detail === 'string') {
+        toast.error(detail)
       } else {
-        toast.error(detail || 'Registration failed')
+        toast.error('Registration failed. Please check your inputs.')
       }
     } finally {
       setLoading(false)
