@@ -11,6 +11,7 @@ from app.services.donation.router import router as donation_router, restaurant_r
 from app.services.matching.router import router as matching_router
 from app.services.ml.freshness_router import router as freshness_router
 from app.services.ml.forecast_router import router as forecast_router
+from app.services.ml.routing_router import router as routing_router
 from app.services.notifications.router import router as notification_router
 
 app = FastAPI(
@@ -47,6 +48,7 @@ app.include_router(restaurant_router, prefix="/api/v1")
 app.include_router(matching_router, prefix="/api/v1")
 app.include_router(freshness_router, prefix="/api/v1")
 app.include_router(forecast_router, prefix="/api/v1")
+app.include_router(routing_router, prefix="/api/v1")
 app.include_router(notification_router, prefix="/api/v1")
 
 @app.get("/", tags=["Health Check"])
