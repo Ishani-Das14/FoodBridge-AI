@@ -12,10 +12,10 @@ from app.auth.dependencies import get_current_user, role_required
 from app.models import User, Match
 from app.services.matching.schemas import MatchOut
 from app.services.matching.service import (
-    run_matching_for_donation,
     accept_match,
     reject_match
 )
+from app.services.matching.ml_service import MLMatchingService
 
 router = APIRouter(prefix="/match", tags=["NGO Matching"])
 
@@ -36,8 +36,8 @@ async def verify_internal_auth(
         )
 
 @router.post("/{donation_id}", response_model=List[MatchOut], status_code=status.HTTP_201_CREATED)
-def trigger_matching(
-    donation_id: int,
+async def trigger_matching(
+    donation_id: str,
     db: Session = Depends(get_db),
     _internal: None = Depends(verify_internal_auth)
 ):
@@ -45,7 +45,19 @@ def trigger_matching(
     Triggers the NGO matching algorithm for a food donation.
     Authorized for internal Celery background processes only.
     """
-    return run_matching_for_donation(db, donation_id)
+    svc = MLMatchingService()
+    return await svc.match_donation(donation_id, db)
+
+@router.get("/explain/{donation_id}")
+def explain_matching(
+    donation_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Returns score breakdown for each candidate NGO for transparency.
+    """
+    svc = MLMatchingService()
+    return svc.get_explanation(donation_id, db)
 
 @router.get("/donation/{donation_id}", response_model=List[MatchOut])
 def get_donation_matches(

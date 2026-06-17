@@ -1,0 +1,22 @@
+[
+    "quantity",
+    "expiry_minutes",
+    "weather_temp",
+    "ngo_capacity",
+    "traffic_factor",
+    "time_to_expiry",
+    "food_perishability_score",
+    "capacity_ratio",
+    "is_peak_hour",
+    "dist_very_near",
+    "dist_near",
+    "dist_moderate",
+    "dist_far",
+    "food_Biryani",
+    "food_Bread",
+    "food_Curry",
+    "food_Dal",
+    "food_Mixed",
+    "food_Rice",
+    "food_Roti"
+]

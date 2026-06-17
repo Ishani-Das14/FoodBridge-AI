@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.auth.router import router as auth_router
 from app.services.donation.router import router as donation_router, restaurant_router
 from app.services.matching.router import router as matching_router
+from app.services.ml.freshness_router import router as freshness_router
 from app.services.notifications.router import router as notification_router
 
 app = FastAPI(
@@ -43,6 +44,7 @@ app.include_router(auth_router, prefix="/api/v1")
 app.include_router(donation_router, prefix="/api/v1")
 app.include_router(restaurant_router, prefix="/api/v1")
 app.include_router(matching_router, prefix="/api/v1")
+app.include_router(freshness_router, prefix="/api/v1")
 app.include_router(notification_router, prefix="/api/v1")
 
 @app.get("/", tags=["Health Check"])
