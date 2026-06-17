@@ -12,7 +12,9 @@ from app.services.matching.router import router as matching_router
 from app.services.ml.freshness_router import router as freshness_router
 from app.services.ml.forecast_router import router as forecast_router
 from app.services.ml.routing_router import router as routing_router
+from app.services.analytics.router import router as analytics_router
 from app.services.notifications.router import router as notification_router
+from ml.serving.model_registry import registry as model_registry
 
 app = FastAPI(
     title="FoodBridge AI API Gateway",
@@ -49,7 +51,13 @@ app.include_router(matching_router, prefix="/api/v1")
 app.include_router(freshness_router, prefix="/api/v1")
 app.include_router(forecast_router, prefix="/api/v1")
 app.include_router(routing_router, prefix="/api/v1")
+app.include_router(analytics_router, prefix="/api/v1")
 app.include_router(notification_router, prefix="/api/v1")
+
+@app.get("/api/v1/ml/health", tags=["Machine Learning"])
+def get_ml_health():
+    """Returns the health status of all pre-loaded ML models."""
+    return model_registry.health_check()
 
 @app.get("/", tags=["Health Check"])
 def read_root():
