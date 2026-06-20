@@ -17,11 +17,19 @@ celery_app = Celery(
     backend=CELERY_RESULT_BACKEND
 )
 
+from celery.schedules import crontab
+
 celery_app.conf.update(
     task_serializer="json",
     accept_content=["json"],
     result_serializer="json",
     timezone="UTC",
     enable_utc=True,
-    imports=("app.tasks.donation_tasks",) # Explicitly load tasks to register them
+    imports=("app.tasks.donation_tasks", "app.tasks.retrain_tasks"),
+    beat_schedule={
+        "nightly-retrain-check": {
+            "task": "nightly_retrain_check",
+            "schedule": crontab(hour=2, minute=0),
+        }
+    }
 )

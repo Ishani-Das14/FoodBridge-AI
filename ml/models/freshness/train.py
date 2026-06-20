@@ -19,10 +19,10 @@ sys.path.append(project_root)
 from ml.features.engineering import FeatureEngineer
 
 # ─── Configuration ────────────────────────────────────────────────────────────
-DATA_PATH = os.path.join(project_root, "ml", "data", "synthetic_donations.csv")
+DATA_PATH = os.environ.get("TRAIN_DATA_PATH", os.path.join(project_root, "ml", "data", "synthetic_donations.csv"))
 OUT_DIR = os.path.dirname(__file__)
 
-MODEL_PATH = os.path.join(OUT_DIR, "freshness_model.pkl")
+MODEL_PATH = os.environ.get("MODEL_OUTPUT_PATH", os.path.join(OUT_DIR, "freshness_model.pkl"))
 NAMES_PATH = os.path.join(OUT_DIR, "feature_names.json")
 PLOT_PATH = os.path.join(OUT_DIR, "feature_importance.png")
 
