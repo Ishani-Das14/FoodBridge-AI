@@ -123,6 +123,16 @@ def update_donation_status(db: Session, user: User, donation_id: int, new_status
     donation.status = new_status
     db.commit()
     db.refresh(donation)
+    
+    if new_status == "delivered" and donation.restaurant_id:
+        from app.core.redis import redis_client
+        if redis_client:
+            try:
+                redis_client.delete(f"csr_score:{donation.restaurant_id}")
+                redis_client.delete("csr_leaderboard:20")
+            except Exception:
+                pass
+                
     return donation
 
 def delete_donation(db: Session, user: User, donation_id: int) -> Donation:

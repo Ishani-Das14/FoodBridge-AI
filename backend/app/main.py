@@ -16,6 +16,8 @@ from app.services.analytics.router import router as analytics_router
 from app.services.notifications.router import router as notification_router
 from app.services.admin.router import router as admin_router
 from app.services.compliance.router import router as compliance_router
+from app.services.csr.router import router as csr_router
+from app.services.csr.router import leaderboard_router
 from ml.serving.model_registry import registry as model_registry
 
 app = FastAPI(
@@ -57,6 +59,8 @@ app.include_router(analytics_router, prefix="/api/v1")
 app.include_router(notification_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
 app.include_router(compliance_router, prefix="/api/v1")
+app.include_router(csr_router, prefix="/api/v1")
+app.include_router(leaderboard_router, prefix="/api/v1")
 
 @app.get("/api/v1/ml/health", tags=["Machine Learning"])
 def get_ml_health():
