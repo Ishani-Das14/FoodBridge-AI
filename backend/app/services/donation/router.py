@@ -17,6 +17,7 @@ from app.services.donation.service import (
     update_donation_status as svc_update_donation_status,
     delete_donation as svc_delete_donation
 )
+from app.services.compliance.validator import FSSAIValidator
 
 router = APIRouter(prefix="/donations", tags=["Food Donations"])
 
@@ -61,8 +62,22 @@ def create_donation(
     """
     Creates a new food donation post.
     Enforces Restaurant-only clearance via the service layer.
+    FSSAI compliance check acts as a hard gate before DB commit.
     Schedules matching algorithm runs.
     """
+    # Calculate expiry minutes from prep_time and expiry_time
+    expiry_minutes = int((data.expiry_time - data.prep_time).total_seconds() / 60)
+    
+    # FSSAI Hard Gate
+    validator = FSSAIValidator()
+    compliance = validator.validate_donation_safety(
+        food_type=data.food_type,
+        prep_time=data.prep_time,
+        expiry_minutes=expiry_minutes
+    )
+    if not compliance["is_compliant"]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=compliance["reason"])
+
     return svc_create_donation(db, current_user, data)
 
 @router.get("", response_model=List[DonationOut])

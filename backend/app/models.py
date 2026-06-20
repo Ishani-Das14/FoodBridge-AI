@@ -4,6 +4,7 @@
 # ==============================================================================
 import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Float
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -73,6 +74,9 @@ class Donation(Base):
     pickup_lat = Column(Float, nullable=False)
     pickup_lng = Column(Float, nullable=False)
     status = Column(String, default="available", nullable=False) # available, picked_up, delivered, expired
+    packaging_type = Column(String, nullable=True) # sealed, open, semi_sealed
+    storage_temp = Column(String, nullable=True) # hot, cold, ambient
+    allergen_tags = Column(ARRAY(String), nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
 
     restaurant = relationship("RestaurantProfile", back_populates="donations")
