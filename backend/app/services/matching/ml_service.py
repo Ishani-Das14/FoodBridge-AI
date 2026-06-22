@@ -14,6 +14,7 @@ from app.models import Donation, NGOProfile, Match
 from app.core.redis import redis_client
 from ml.models.matching.scorer import NGOScorer
 from ml.models.matching.allocator import GreedyAllocator
+from app.services.emergency.service import EmergencyModeService
 
 logger = logging.getLogger(__name__)
 
@@ -53,9 +54,18 @@ class MLMatchingService:
         # we will fetch all NGOs and attach a dummy distance if none is provided,
         # but in production, we assume `distance_km` is injected via DB query.
         
+        # Emergency Mode Override
+        emergency_status = EmergencyModeService.is_active()
+        if emergency_status:
+            radius = EmergencyModeService.get_emergency_matching_radius()
+            self.scorer = NGOScorer(max_radius=radius)
+            logger.warning(f"EMERGENCY MODE ACTIVE: Extending match radius to {radius}km.")
+        else:
+            self.scorer = NGOScorer(max_radius=15.0)
+
         # Simulating the DB result (Assuming no strict PostGIS requirement in Python code)
         ngos_raw = db.query(NGOProfile).all()
-        # Mocking 15km filter and injecting distance_km for scoring
+        # Mocking filter and injecting distance_km for scoring
         candidate_ngos = []
         for n in ngos_raw:
             # Fake distance if real PostGIS distance isn't available
@@ -92,6 +102,10 @@ class MLMatchingService:
 
         # Step 4: Score all NGOs
         ranked_ngos = self.scorer.rank_ngos(donation, candidate_ngos, past_stats_dict)
+        
+        if emergency_status:
+            # Prioritize disaster_relief_center types
+            ranked_ngos.sort(key=lambda x: (x[0].ngo_type != "disaster_relief_center", -x[1]))
         
         # Log explanation breakdown for debugging / transparency
         for ngo, score in ranked_ngos:

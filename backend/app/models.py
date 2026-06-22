@@ -47,6 +47,7 @@ class NGOProfile(Base):
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     capacity = Column(Integer, default=0, nullable=False)
+    ngo_type = Column(String, default="standard", nullable=False) # standard, disaster_relief_center, shelter, community_kitchen
 
     user = relationship("User", back_populates="ngo_profile")
 
@@ -110,3 +111,13 @@ class Notification(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
 
     user = relationship("User")
+
+class EmergencyLog(Base):
+    __tablename__ = "emergency_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    action = Column(String, nullable=False) # activate, deactivate
+    reason = Column(String, nullable=True)
+    affected_districts = Column(ARRAY(String), nullable=True)
+    triggered_by = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)

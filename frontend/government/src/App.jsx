@@ -3,7 +3,8 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Analytics from './pages/Analytics';
 import Forecast from './pages/Forecast';
-import { LayoutDashboard, Map } from 'lucide-react';
+import EmergencyMode from './pages/EmergencyMode';
+import { LayoutDashboard, Map, AlertOctagon } from 'lucide-react';
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,10 @@ function Layout({ children }) {
             <Map size={20} />
             <span>ML Forecast</span>
           </Link>
+          <Link to="/emergency" className="flex items-center space-x-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors font-bold">
+            <AlertOctagon size={20} />
+            <span>Emergency Mode</span>
+          </Link>
         </nav>
       </aside>
       <main className="flex-1 overflow-auto">
@@ -41,6 +46,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Analytics />} />
             <Route path="/forecast" element={<Forecast />} />
+            <Route path="/emergency" element={<EmergencyMode />} />
           </Routes>
         </Layout>
       </BrowserRouter>

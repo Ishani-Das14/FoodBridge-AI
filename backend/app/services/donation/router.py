@@ -84,6 +84,7 @@ def create_donation(
 def list_active_donations(
     status: str = "available",
     city: Optional[str] = None,
+    emergency_only: bool = False,
     limit: int = 20,
     offset: int = 0,
     db: Session = Depends(get_db)
@@ -92,7 +93,7 @@ def list_active_donations(
     Lists active/available donation posts, paginated.
     Optional query filtering by city (checking pickup_address).
     """
-    return svc_list_active_donations(db, status, city, limit, offset)
+    return svc_list_active_donations(db, status, city, emergency_only, limit, offset)
 
 @router.get("/{donation_id}", response_model=DonationOut)
 def get_donation(
