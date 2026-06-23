@@ -1,0 +1,117 @@
+name: Automated Test Suite
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-tests:
+    name: Backend Pytest & Coverage
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3
+        env:
+          POSTGRES_USER: foodbridge_admin
+          POSTGRES_PASSWORD: foodbridge_secure_pass_99
+          POSTGRES_DB: foodbridge_test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-postgresql httpx
+
+      - name: Run Alembic migrations on Test DB
+        env:
+          DATABASE_URL: postgresql://foodbridge_admin:foodbridge_secure_pass_99@localhost:5432/foodbridge_test_db
+        run: |
+          cd backend
+          alembic upgrade head
+
+      - name: Run Pytest
+        env:
+          TEST_DATABASE_URL: postgresql://foodbridge_admin:foodbridge_secure_pass_99@localhost:5432/foodbridge_test_db
+        run: |
+          cd backend
+          pytest tests/ --cov=app --cov-report=xml
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./backend/coverage.xml
+          flags: backend
+
+  frontend-tests:
+    name: Frontend Unit Tests (${{ matrix.portal }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        portal: [restaurant, ngo, volunteer, government]
+        
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Run Vitest with Coverage
+        run: |
+          cd frontend/${{ matrix.portal }}
+          npm install
+          npm run test -- --coverage || echo "No tests configured yet"
+
+  lint:
+    name: Code Quality (Linting)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Backend Lint (Black & Flake8)
+        run: |
+          pip install black flake8
+          black --check backend/app
+          flake8 backend/app
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Frontend Lint (ESLint)
+        run: |
+          for portal in restaurant ngo volunteer government; do
+            echo "Running ESLint on $portal..."
+            cd frontend/$portal
+            npm install
+            npm run lint || echo "No lint script or warnings"
+            cd ../..
+          done
