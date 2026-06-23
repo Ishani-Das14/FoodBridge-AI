@@ -19,13 +19,26 @@ from app.services.compliance.router import router as compliance_router
 from app.services.csr.router import router as csr_router
 from app.services.csr.router import leaderboard_router
 from app.services.emergency.router import router as emergency_router
+from app.monitoring.health import router as health_router
+from app.monitoring.metrics import setup_metrics
 from ml.serving.model_registry import registry as model_registry
+import sentry_sdk
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN"),
+    traces_sample_rate=0.1,
+    environment=os.getenv("ENVIRONMENT", "production")
+)
 
 app = FastAPI(
     title="FoodBridge AI API Gateway",
     description="Backend services powering food redistribution matching and orchestration",
     version="1.0.0",
 )
+
+app.add_middleware(SentryAsgiMiddleware)
+setup_metrics(app)
 
 # ------------------------------------------------------------------------------
 # Cross-Origin Resource Sharing (CORS) Middleware Setup
@@ -63,11 +76,7 @@ app.include_router(compliance_router, prefix="/api/v1")
 app.include_router(csr_router, prefix="/api/v1")
 app.include_router(leaderboard_router, prefix="/api/v1")
 app.include_router(emergency_router, prefix="/api/v1/admin")
-
-@app.get("/api/v1/ml/health", tags=["Machine Learning"])
-def get_ml_health():
-    """Returns the health status of all pre-loaded ML models."""
-    return model_registry.health_check()
+app.include_router(health_router, prefix="/api/v1")
 
 @app.get("/", tags=["Health Check"])
 def read_root():

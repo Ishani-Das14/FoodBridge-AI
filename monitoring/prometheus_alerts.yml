@@ -1,0 +1,37 @@
+groups:
+  - name: FoodBridgeAlerts
+    rules:
+      - alert: HighDonationToMatchTime
+        expr: histogram_quantile(0.95, sum(rate(donation_to_match_seconds_bucket[5m])) by (le)) > 600
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Donation to Match Time"
+          description: "The 95th percentile of donation to match time has exceeded 10 minutes (600s) for the last 5 minutes."
+
+      - alert: MLInferenceLatencyHigh
+        expr: histogram_quantile(0.95, sum(rate(ml_inference_latency_seconds_bucket[5m])) by (le)) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High ML Inference Latency"
+          description: "The 95th percentile of ML model inference time has exceeded 2 seconds for the last 5 minutes."
+
+      - alert: HighExpiredDonationRate
+        expr: rate(donations_expired_total[1h]) / rate(donations_created_total[1h]) > 0.15
+        labels:
+          severity: critical
+        annotations:
+          summary: "High Expired Donation Rate"
+          description: "More than 15% of newly created donations expired unmatched in the last hour."
+
+      - alert: ServiceDown
+        expr: up{job="fastapi"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "FastAPI Service Down"
+          description: "The FastAPI backend service has been down for more than 1 minute."
