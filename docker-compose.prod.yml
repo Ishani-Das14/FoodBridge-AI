@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  fastapi:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env.production
+    depends_on:
+      - postgresql
+      - redis
+    networks:
+      - foodbridge-net
+    restart: always
+
+  postgresql:
+    image: postgis/postgis:15-3.3
+    env_file: .env.production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - foodbridge-net
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - foodbridge-net
+    restart: always
+
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A app.tasks.celery_app worker --loglevel=info
+    env_file: .env.production
+    depends_on:
+      - postgresql
+      - redis
+    networks:
+      - foodbridge-net
+    restart: always
+
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A app.tasks.celery_app beat --loglevel=info
+    env_file: .env.production
+    depends_on:
+      - postgresql
+      - redis
+    networks:
+      - foodbridge-net
+    restart: always
+
+  # Frontends included for completeness of the cluster as per nginx routing requirements
+  restaurant-frontend:
+    build:
+      context: ./frontend/restaurant
+      dockerfile: Dockerfile
+    networks:
+      - foodbridge-net
+    restart: always
+
+  ngo-frontend:
+    build:
+      context: ./frontend/ngo
+      dockerfile: Dockerfile
+    networks:
+      - foodbridge-net
+    restart: always
+
+  volunteer-frontend:
+    build:
+      context: ./frontend/volunteer
+      dockerfile: Dockerfile
+    networks:
+      - foodbridge-net
+    restart: always
+
+  government-frontend:
+    build:
+      context: ./frontend/government
+      dockerfile: Dockerfile
+    networks:
+      - foodbridge-net
+    restart: always
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - fastapi
+      - restaurant-frontend
+      - ngo-frontend
+      - volunteer-frontend
+      - government-frontend
+    networks:
+      - foodbridge-net
+    restart: always
+
+networks:
+  foodbridge-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
